@@ -5,7 +5,8 @@ const https = require("https");
 const { query } = require("express");
 
 const app = express();
-var items = ["Testing of i3","Bash Scripting"];
+let items = ["Testing of i3","Bash Scripting"];
+let workItems =[];
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static(__dirname+'/public'));
 app.set('view engine','ejs');
@@ -18,15 +19,33 @@ app.get("/",function(req,res){
     };
     var day = currentDay.toLocaleDateString("en-US",options);
     res.render("list",{
-        KindofDay:day,
-        newListItems:items
+        listTitle:day,
+        newListItems:items  
     });
 });
 
 app.post("/",function(req,res){
-    var item = req.body.newList;
-    items.push(item);
-    res.redirect("/");
+    let item = req.body.newItem;
+    if(req.body.list === "Work"){
+        workItems.push(item);
+        res.redirect("/work");
+    }else{
+        items.push(item);
+        res.redirect("/");
+    }
+});
+
+app.get("/work",function(req,res){
+    res.render("list",{
+        listTitle:"Work",
+        newListItems:workItems
+    });
+});
+
+app.post("/work",function(req,res){
+    let item = req.body.newItem;
+    workItems.push(item);
+    res.redirect("/work");
 });
 
 app.listen(3000,function(){
